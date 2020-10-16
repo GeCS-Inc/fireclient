@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.withOption = exports.disconnectCollectionFromState = exports.disconnectDocFromState = exports.connectCollectionToState = exports.connectDocToState = exports.deleteCollectionFromState = exports.deleteDocFromState = exports.saveCollection = exports.saveDoc = exports.createDataFromCollection = exports.createDataFromDoc = exports.createData = exports.isDocPath = exports.searchCollectionId = exports.getCollectionPathFromId = exports.generateHooksId = exports.getQueryId = exports.getHashCode = void 0;
 var firebase_1 = require("firebase");
 var immutable_1 = require("immutable");
 var path_1 = __importDefault(require("path"));
@@ -43,7 +44,7 @@ function sortedFromJS(obj) {
  * @param obj
  */
 exports.getHashCode = function (obj) {
-    return obj === undefined ? sortedFromJS({}).hashCode() : sortedFromJS(obj).hashCode();
+    return obj ? sortedFromJS(obj).hashCode() : sortedFromJS({}).hashCode();
 };
 /**
  * CollectionのQueryに対するQueryIdを返す
@@ -265,14 +266,14 @@ function withWhere(ref, where) {
     if (Array.isArray(where)) {
         return where.reduce(function (acc, cond) { return withWhere(acc, cond); }, ref);
     }
-    if (where === undefined) {
+    if (!where) {
         return ref;
     }
     var _a = where, field = _a.field, operator = _a.operator, value = _a.value;
     return ref.where(field, operator, value);
 }
 function withLimit(ref, limit) {
-    return limit === undefined ? ref : ref.limit(limit);
+    return limit ? ref.limit(limit) : ref;
 }
 function withOrder(ref, order) {
     if (Array.isArray(order)) {
@@ -280,14 +281,14 @@ function withOrder(ref, order) {
             return withOrder(acc, ord);
         }, ref);
     }
-    if (order === undefined) {
+    if (!order) {
         return ref;
     }
     var _a = order, by = _a.by, direction = _a.direction;
-    return direction === undefined ? ref.orderBy(by) : ref.orderBy(by, direction);
+    return direction ? ref.orderBy(by, direction) : ref.orderBy(by);
 }
 function withCursor(ref, cursor) {
-    if (cursor === undefined) {
+    if (!cursor) {
         return ref;
     }
     var direction = cursor.direction, origin = cursor.origin, multipleFields = cursor.multipleFields;

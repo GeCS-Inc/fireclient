@@ -10,17 +10,30 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.useQuery = exports.useArrayQuery = void 0;
 var immutable_1 = require("immutable");
 var react_1 = require("react");
 var __1 = require("..");
@@ -32,8 +45,8 @@ var utils_1 = require("../utils");
 function useArrayQuery(getFql) {
     typeCheck_1.assertRule(typeCheck.arrayGetFqlRule)(getFql, "getFql");
     var queries = getFql.queries, callback = getFql.callback;
-    var connects = getFql.connects === true; // getFql.connects can be undefined
-    var acceptOutdated = getFql.acceptOutdated === true; // getFql.acceptOutdated can be undefined
+    var connects = !!getFql.connects; // getFql.connects can be undefined
+    var acceptOutdated = !!getFql.acceptOutdated; // getFql.acceptOutdated can be undefined
     var initialQueryData = queries.map(function (query) {
         return utils_1.isDocPath(query.location) ? __1.initialDocData : __1.initialCollectionData;
     });
@@ -59,8 +72,10 @@ function useArrayQuery(getFql) {
         Promise.all(queries.map(function (query, i) {
             return new Promise(function (resolve, reject) {
                 var location = query.location, limit = query.limit, where = query.where, order = query.order, cursor = query.cursor;
-                var queryConnects = query.connects === undefined ? connects : query.connects;
-                var queryAcceptOutdated = query.acceptOutdated === undefined ? acceptOutdated : query.acceptOutdated;
+                var queryConnects = query.connects ? query.connects : connects;
+                var queryAcceptOutdated = query.acceptOutdated
+                    ? query.acceptOutdated
+                    : acceptOutdated;
                 var queryCallback = query.callback;
                 var isDocQuery = utils_1.isDocPath(location);
                 var onChange = function (data) {
