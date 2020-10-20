@@ -36,25 +36,25 @@ var __1 = require("..");
 var useGetCollection_1 = require("../getHooks/useGetCollection");
 var typeCheck = __importStar(require("../typeCheck"));
 var typeCheck_1 = require("../typeCheck");
-function useGetMinMax(path, options) {
-    var order = options.order;
-    var isDesc = order.direction === "desc";
-    var minDocOption = __assign(__assign({}, options), { limit: 1 });
-    var maxDocOption = __assign(__assign({}, options), { limit: 1, order: __assign(__assign({}, order), { direction: (isDesc ? "asc" : "desc") }) });
-    var _a = useGetCollection_1.useGetCollectionSnapshot(path, minDocOption), min = _a[0], reloadMin = _a[3];
-    var _b = useGetCollection_1.useGetCollectionSnapshot(path, maxDocOption), max = _b[0], reloadMax = _b[3];
-    var optionalMin = min && min[0] ? min[0] : null;
-    var optionalMax = max && max[0] ? max[0] : null;
-    return [optionalMin, optionalMax, reloadMin, reloadMax];
-}
 function reverseDirection(reverse, direction) {
     if (direction === void 0) { direction = "asc"; }
     switch (direction) {
         case "asc":
             return !reverse ? "asc" : "desc";
         case "desc":
-            return !reverse ? "asc" : "desc";
+            return !reverse ? "desc" : "asc";
     }
+}
+function useGetMinMax(path, options) {
+    var order = options.order;
+    var minDocOption = __assign(__assign({}, options), { limit: 1 });
+    var maxDocOption = __assign(__assign({}, options), { limit: 1, order: __assign(__assign({}, order), { direction: reverseDirection(true, order.direction) }) });
+    console.log(minDocOption, maxDocOption);
+    var _a = useGetCollection_1.useGetCollectionSnapshot(path, minDocOption), min = _a[0], reloadMin = _a[3];
+    var _b = useGetCollection_1.useGetCollectionSnapshot(path, maxDocOption), max = _b[0], reloadMax = _b[3];
+    var optionalMin = min && min[0] ? min[0] : null;
+    var optionalMax = max && max[0] ? max[0] : null;
+    return [optionalMin, optionalMax, reloadMin, reloadMax];
 }
 function reverseOrder(reverse, order) {
     return Array.isArray(order)

@@ -12,6 +12,15 @@ import { useGetCollectionSnapshot } from "../getHooks/useGetCollection";
 import * as typeCheck from "../typeCheck";
 import { assertRule, matches } from "../typeCheck";
 
+function reverseDirection(reverse: boolean, direction: OrderDirection = "asc"): OrderDirection {
+  switch (direction) {
+    case "asc":
+      return !reverse ? "asc" : "desc";
+    case "desc":
+      return !reverse ? "desc" : "asc";
+  }
+}
+
 function useGetMinMax(
   path: string,
   options: {
@@ -20,7 +29,6 @@ function useGetMinMax(
   } & QueryOptions,
 ): [firestore.DocumentSnapshot | null, firestore.DocumentSnapshot | null, () => void, () => void] {
   const order = options.order as Order;
-  const isDesc = order.direction === "desc";
   const minDocOption = {
     ...options,
     limit: 1,
@@ -30,24 +38,17 @@ function useGetMinMax(
     limit: 1,
     order: {
       ...order,
-      direction: (isDesc ? "asc" : "desc") as OrderDirection,
+      direction: reverseDirection(true, order.direction),
     },
   };
+  console.log(minDocOption, maxDocOption)
+
 
   const [min, , , reloadMin] = useGetCollectionSnapshot(path, minDocOption);
   const [max, , , reloadMax] = useGetCollectionSnapshot(path, maxDocOption);
   const optionalMin = min && min[0] ? min[0] : null;
   const optionalMax = max && max[0] ? max[0] : null;
   return [optionalMin, optionalMax, reloadMin, reloadMax];
-}
-
-function reverseDirection(reverse: boolean, direction: OrderDirection = "asc"): OrderDirection {
-  switch (direction) {
-    case "asc":
-      return !reverse ? "asc" : "desc";
-    case "desc":
-      return !reverse ? "asc" : "desc";
-  }
 }
 
 function reverseOrder(reverse: boolean, order: Order | Order[]): Order | Order[] {
